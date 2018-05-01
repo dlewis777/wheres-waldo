@@ -1,6 +1,3 @@
 [submodule "data/tiramisu"]
 	path = data/tiramisu
 	url = https://github.com/bfortuner/pytorch_tiramisu.git
-[submodule "tiramisu"]
-	path = tiramisu
-	url = https://github.com/bfortuner/pytorch_tiramisu.git
