@@ -13,10 +13,11 @@ for filename in  os.listdir(wkdir + '/' + str(imsize) + '/waldo'):
     for i in range(imsize):
         #left/right
         for j in range(imsize):
-
+            print('OG SHAPE', im.shape)
             temp = cv2.copyMakeBorder(im,0,i,0,j,cv2.BORDER_WRAP)
-            temp2 = temp[j:imsize+j+1,i:imsize+i+1]
-            cv2.imshow('image', temp2)
-            cv2.imwrite(wkdir + '/' + str(imsize) + '/augment/' + filename + '-' + str(i) + '-' + str(j) + '.jpg', temp2)	
-            temp3 = cv2.flip(temp2,0)
-            cv2.imwrite(wkdir + '/' + str(imsize) + '/augment/' + filename + '-' + str(i) + '-' + str(j) + 'r.jpg', temp2)	
+            print(temp.shape)
+            temp2 = temp[i:imsize+i,j:imsize+j]
+            print(temp2.shape)
+            cv2.imwrite(wkdir + '/augment/waldo/' + filename + '-' + str(i) + '-' + str(j) + '.jpg', temp2)	
+            temp3 = cv2.flip(temp2,1)
+            cv2.imwrite(wkdir + '/augment/waldo/' + filename + '-' + str(i) + '-' + str(j) + 'r.jpg', temp3)	
