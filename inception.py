@@ -32,7 +32,7 @@ data_transforms = {
 
 #dataset_loader = torch.utils.data.DataLoader(waldo_dataset, batch_size=4, shuffle=True, num_workers=4)
 
-data_dir = '256'
+data_dir = '256_temp'
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
