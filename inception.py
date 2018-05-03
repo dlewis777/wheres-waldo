@@ -15,14 +15,14 @@ import copy
 
 data_transforms = {
     'train': transforms.Compose([
-        transforms.RandomResizedCrop(224),
+        transforms.RandomResizedCrop(299),#resnet is 224
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'val': transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.Resize(299),
+        #transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -32,7 +32,7 @@ data_transforms = {
 
 #dataset_loader = torch.utils.data.DataLoader(waldo_dataset, batch_size=4, shuffle=True, num_workers=4)
 
-data_dir = 'data/256_temp'
+data_dir = 'data/64'
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
@@ -65,8 +65,10 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
             if phase == 'train':
                 scheduler.step()
                 model.train()  # Set model to training mode
+                print('TRAINING')
             else:
                 model.eval()   # Set model to evaluate mode
+                print('EVALUATING')
 
             running_loss = 0.0
             running_corrects = 0
@@ -82,9 +84,20 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
                 # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
+                    print('inputs shape: ', inputs.shape)
                     outputs = model(inputs)
-                    _, preds = torch.max(outputs, 1)
-                    loss = criterion(outputs, labels)
+                    #print('output[0] shape: ', outputs[0].shape)
+                    #print('output[1] shape: ', outputs[1].shape)
+                    #_, preds = torch.max(outputs[0], 1)
+                    #print('prediction shape: ', preds.shape)
+                    #print('labels shape: ', labels.data.shape)
+                    if isinstance(outputs, tuple):
+                        _, preds = torch.max(outputs[0], 1)
+                        loss = sum((criterion(o,labels) for o in outputs))
+                    else:
+                        _, preds = torch.max(outputs, 1)
+                        loss = criterion(outputs, labels)
+                    # loss = criterion(outputs[1], labels) + criterion(outputs[0], labels)
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
@@ -117,8 +130,8 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
     model.load_state_dict(best_model_wts)
     return model
 
-#model_ft = models.inception_v3(pretrained=True)
-model_ft = models.resnet18(pretrained=True)
+model_ft = models.inception_v3(pretrained=True)
+#model_ft = models.resnet18(pretrained=True)
 num_ftrs = model_ft.fc.in_features
 model_ft.fc = nn.Linear(num_ftrs, 2)
 
