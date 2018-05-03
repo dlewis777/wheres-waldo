@@ -17,6 +17,8 @@ data_transforms = {
     'train': transforms.Compose([
         transforms.RandomResizedCrop(299),#resnet is 224
         transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        transforms.RandomRotation(45),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -32,7 +34,7 @@ data_transforms = {
 
 #dataset_loader = torch.utils.data.DataLoader(waldo_dataset, batch_size=4, shuffle=True, num_workers=4)
 
-data_dir = 'data/64'
+data_dir = 'data/128'
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
@@ -84,13 +86,14 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
                 # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
-                    print('inputs shape: ', inputs.shape)
+                    #print('inputs shape: ', inputs.shape)
                     outputs = model(inputs)
                     #print('output[0] shape: ', outputs[0].shape)
                     #print('output[1] shape: ', outputs[1].shape)
                     #_, preds = torch.max(outputs[0], 1)
                     #print('prediction shape: ', preds.shape)
                     #print('labels shape: ', labels.data.shape)
+                    #print(labels)
                     if isinstance(outputs, tuple):
                         _, preds = torch.max(outputs[0], 1)
                         loss = sum((criterion(o,labels) for o in outputs))
