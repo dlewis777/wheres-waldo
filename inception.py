@@ -16,15 +16,18 @@ import copy
 data_transforms = {
     'train': transforms.Compose([
         transforms.RandomResizedCrop(299),#resnet is 224
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.RandomRotation(45),
+        #transforms.RandomHorizontalFlip(),
+        #transforms.RandomVerticalFlip(),
+        transforms.RandomAffine(45, translate=(0.1,0.1), shear=45),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'val': transforms.Compose([
         transforms.Resize(299),
-        #transforms.CenterCrop(224),
+	#transforms.RandomHorizontalFlip(),
+	#transforms.RandomVerticalFlip(),
+        transforms.RandomAffine(0,shear=15),
+	#transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
@@ -34,12 +37,12 @@ data_transforms = {
 
 #dataset_loader = torch.utils.data.DataLoader(waldo_dataset, batch_size=4, shuffle=True, num_workers=4)
 
-data_dir = 'data/128'
+data_dir = 'new_data'
 image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                           data_transforms[x])
                   for x in ['train', 'val']}
-dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                             shuffle=True, num_workers=4)
+dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=64,
+                                             shuffle=True, num_workers=16)
               for x in ['train', 'val']}
 dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
 class_names = image_datasets['train'].classes
@@ -149,4 +152,6 @@ optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 
 model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
-                       num_epochs=25)
+                       num_epochs=10)
+
+torch.save(model_ft, 'inception_10epochs.pt')
